@@ -1,0 +1,31 @@
+Hangman Pseduocode:
+
+Variables:
+
+Array: word //this would work as a character array since the game will be checking it to the characters that are guessed
+//game needs some kind of database to choose words from
+
+Int: wordLength
+
+Array: lettersGuessed (array with 26 bools, 1 if already guessed, 0 if not guessed)
+	//this way, you can compare the ascii value of the input character to the index in the array
+	to see if it's been guessed already
+
+Int: wrongGuessesLeft
+
+Game:
+Game picks a random word and displays underscores "_ _ _ _" for how many letters the word has
+Output: "Guess a letter or guess the whole word"
+After player input,
+If letter is correct, "You got one, guess again!"
+If letter is incorrect, "Wrong, try again!"
+
+Displays word again with all of the guessed letters filled in "_ A _ A _ A"
+Outputs the letters that the player has guessed
+Outputs the number of wrong guesses they can still make
+
+If word is correct or player guesses the last correct letter,
+"You win! The word was BANANA! press R to play again"
+
+Since this game will be using socket programming, the input and output will be replaced with send and receive for the client and host.
+
