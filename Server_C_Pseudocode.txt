@@ -1,0 +1,22 @@
+Server_C_Pseudocode:
+
+Variables:
+
+char: BUFFER_SIZE //used to define the size of the buffer that will be sending/receiving responses from the client/user of the hangman game
+
+Use:
+
+The server will first:
+open a socket()
+implement a socket address struct 
+bind()
+listen() 
+
+Once the socket is open and listening it will send() the opening message of the hangman game to the client.
+
+The server socket will then continuously recv() letter guesses and send() responses based on the accuracy of the guess (either adding letters to the word or body parts to the hangman).
+
+This process will continue until either the client/user has correctly guessed the word and won the game or they have lost due to a full hangman.
+
+A message will be sent that signifies the end of the game (win or lose) and will prompt to play again or close() the sockets.
+
