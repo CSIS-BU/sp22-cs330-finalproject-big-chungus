@@ -1,0 +1,18 @@
+﻿Pseudocode for Hangman Client:
+
+
+Int variable to hold maximum number of wrong guesses
+Create the socket
+Create the structs that I will need to use for connection to the server
+Connect the socket to the server using the structs
+While loop to keep playing the game if client inputs ‘R’
+        Set maximum number of wrong guesses to 0 for new game
+Start infinite while loop to play the game while numberOfWrongGuesses <= maximum variable
+        Client inputs a guess letter for the word
+        If the letter has already been guessed break to allow the user to guess again
+Else If the letter is in the word break back into the while loop and allow the client to guess again.
+Else the letter is not in the word and the numberOfGuesses will be incremented by 1
+After the client has either won or lost the game they can choose to play again with ‘R’
+        If the client responds with ‘R’, then the game will restart with a different word
+        Else client will exit the while loop
+Client will close the connection
