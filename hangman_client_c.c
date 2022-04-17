@@ -14,8 +14,6 @@
 #include <errno.h>
 #include <signal.h>
 
-#define SEND_BUFFER_SIZE 2048
-
 int client(char *server_ip, char *server_port) {
 	// Max guess variable
 	int MAX_WRONG_GUESS = 0;
