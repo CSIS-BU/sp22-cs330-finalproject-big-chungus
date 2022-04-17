@@ -1,6 +1,6 @@
 /*****************************************************************************
- * client-c-sol.c
- * Name:Gavin Worley
+ * hangman_client_c.c FOR Final Group Project
+ * Name: Gavin Worley
  *****************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,7 +17,7 @@
 #define SEND_BUFFER_SIZE 2048
 
 int client(char *server_ip, char *server_port) {
-	// message variable
+	// Max guess variable
 	int MAX_WRONG_GUESS = 0;
 	
 	// creation of the socket and an if statement to check for an error during creation
@@ -51,7 +51,7 @@ int client(char *server_ip, char *server_port) {
 int main(int argc, char **argv){
 	char *server_port;
 	char *server_ip;
-	// check to see if server has correct amount of input arguments and error message if not 3
+	// check to see if server has correct amount of input arguments and error message if not 2
 	if (argc != 2) {
 		fprintf(stderr, "Usage: ./client-c [server IP] [server port]");
 		exit(EXIT_FAILURE);
