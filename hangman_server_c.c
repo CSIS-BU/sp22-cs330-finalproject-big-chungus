@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 
 		//*****************ADD HANGMAN CODE FROM TEAMMATES*****************
 		//this is the initial server blueprint that will be in place until changes are necessary
-		
+
 		//send initial hangman word + structure
 		int send_status;
 		send_status = recv(client_socket, message, BUFFER_SIZE - 1, 0);
