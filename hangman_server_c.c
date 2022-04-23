@@ -65,6 +65,7 @@ int main(int argc, char **argv) {
 	while(1){
 		//variables
 		sin_size = sizeof(struct sockaddr_in);
+		char *message;
 		
 		//creating another socket to accept connections while old socket continues listening
 		client_socket = accept(server_socket, (struct sockaddr*) &serverAddr, &sin_size);
