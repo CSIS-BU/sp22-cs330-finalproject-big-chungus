@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
         perror ("Error loading file");
         exit (EXIT_FAILURE);
     }
-	while(fgets(words[i++], 20, fp));
+	while(fgets(words[i++], maxWordLength, fp));
 	fclose(fp);
 
 	//i = 0; //prints out all the words
