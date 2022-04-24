@@ -19,6 +19,16 @@
 #define BUFFER_SIZE 2048
 
 int main(int argc, char **argv) {
+
+	//test for arguments
+	char *server_port;
+
+	if (argc != 2) {
+    fprintf(stderr, "Usage: ./server-c [server port]\n");
+    exit(EXIT_FAILURE);
+  	}
+  	server_port = argv[1];
+
 	//creating the socket
 	int server_socket, client_socket;
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -39,7 +49,7 @@ int main(int argc, char **argv) {
 	struct sockaddr_in serverAddr;
 	socklen_t sin_size;
 	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(80);
+	serverAddr.sin_port = htons(atoi(server_port));
 	serverAddr.sin_addr.s_addr = INADDR_ANY;
 
 	//binding server to port using struct
@@ -61,10 +71,34 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 	
+	//variables to load word file
+	FILE *fp;
+	int numOfWords = 213;
+	int maxWordLength = 30;
+    char words [numOfWords][maxWordLength];
+    char *fileName = "words.txt";
+	int i = 0;
+
+	//open word file and save to an array
+	fp = fopen(fileName, "r");
+    if (fp == NULL)
+    {
+        perror ("Error loading file");
+        exit (EXIT_FAILURE);
+    }
+	while(fgets(words[i++], maxWordLength, fp));
+	fclose(fp);
+
+	//i = 0; //prints out all the words
+    //while(printf ("%s", words[i++]));
+
+
+
 	//opening infinite while-loop in order to sequentially accept and read client connections
 	while(1){
 		//variables
 		sin_size = sizeof(struct sockaddr_in);
+		char *message;
 		
 		//creating another socket to accept connections while old socket continues listening
 		client_socket = accept(server_socket, (struct sockaddr*) &serverAddr, &sin_size);
@@ -76,7 +110,8 @@ int main(int argc, char **argv) {
 
 		//*****************ADD HANGMAN CODE FROM TEAMMATES*****************
 		//this is the initial server blueprint that will be in place until changes are necessary
-		
+
+
 		//send initial hangman word + structure
 		int send_status;
 		send_status = recv(client_socket, message, BUFFER_SIZE - 1, 0);
