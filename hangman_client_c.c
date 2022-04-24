@@ -14,49 +14,69 @@
 #include <errno.h>
 #include <signal.h>
 
-int client(char *server_ip, char *server_port) {
-	// Max guess variable
-	int MAX_WRONG_GUESS = 0;
-	
-	// creation of the socket and an if statement to check for an error during creation
-	int client;
-	if((client = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-		perror("socket");
+int main(int argc, char **argv) {
+    char *server_port;
+	char *server_ip;
+	char ch,guessWord[20],message[100],check;
+	int client(char *server_ip, char *server_port) {
+		// check to see if server has correct amount of input arguments and error message if not 2
+		if (argc != 2) {
+			fprintf(stderr, "Usage: ./client-c [server IP] [server port]");
+			exit(EXIT_FAILURE);
+		}
+		// assigning server ip as argument 1 and server port as argument 2
+		server_ip = argv[1];
+		server_port = argv[2];
+		// creating client using server ip and server port
+		return client(server_ip, server_port);
 	}
-	// creating structs to be used for connection
-	struct sockaddr_in serverAddress;
-	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_port = htons(atoi(server_port));
-	serverAddress.sin_addr.s_addr = inet_addr(server_ip);
+    
+    //creating the socket
+    int client;
+    client = socket(AF_INET, SOCK_STREAM, 0);
+    //error testing for socket creation
+    if(client == -1){
+        perror("socket");
+        exit(1);
+    }
 
-	// connecting socket to server using struct and error testing for connection to server
+    // creating structs to be used for connection
+    struct sockaddr_in serverAddress;
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_port = htons(atoi(argv[2]));
+    inet_pton(AF_INET,argv[1],&serverAddress.sin_addr);
+    
+    // connecting socket to server using struct and error testing for connection to server
 	if(connect(client, (struct sockaddr*) &serverAddress, sizeof(serverAddress)) == -1) {
 		perror("connect");
 	}
 	
-	//while loop to keep playing while client inputs 'R'
-		//while loop while wrong_guesses is < MAX_WRONG_GUESS
-			//if letter has been previously guessed 
-			//else letter is in word break back in to while loop
-			//else increment wrong_guesses by 1 and break into loop
+	printf("WELCOME TO HANGMAN GAME\n");
+	while(1){
+		
+		printf("wait until server give you the word.\n");
+		read(client,guessWord,20);
+		printf("start guessing the word:%s\n",guessWord);
 	
-	// closing the client socket
-	close(client);
-
-	return 0;
+		while(1){
+			
+			printf("guess a letter:");
+			
+			write(client,&ch,1);
+			read(client,guessWord,20);
+			printf("%s\n",guessWord);
+        
+    read(client,message,100);
+    printf("You %s\n",message);
+    read(client,message,100);
+    printf("Actual word:%s",message);
+    printf("\nPlay again(r):");
+    scanf("%c",&check);
+    write(client,&check,1);
+    if(check!='r')
+        break;
 }
-
-int main(int argc, char **argv){
-	char *server_port;
-	char *server_ip;
-	// check to see if server has correct amount of input arguments and error message if not 2
-	if (argc != 2) {
-		fprintf(stderr, "Usage: ./client-c [server IP] [server port]");
-		exit(EXIT_FAILURE);
-	}
-	// assigning server ip as argument 1 and server port as argument 2
-	server_ip = argv[1];
-	server_port = argv[2];
-	// creating client using server ip and server port
-	return client(server_ip, server_port);
+}	
+	close(client);
+	return 0;
 }
