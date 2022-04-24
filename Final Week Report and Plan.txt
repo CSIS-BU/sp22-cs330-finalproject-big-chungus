@@ -1,0 +1,13 @@
+Report on Progress thus far:
+
+Server and Client code in C has been coming along nicely and teh hangman code with database application has been
+prototyped with implementation coming in the next week. Overall, progress has been steady and we feel we are on track to 
+finish on time.
+
+Plan for the Final Week:
+
+We expect to be able to begin complete testing by the end of this week where our project will be near a working form. 
+The client and server codes are operation and the hangman game is close to correct. This weeks plan is to put the 
+two codebases (connection and game) together in order to move to the final stage of this project. In the final stage, we will
+test and debug the final product in order to be prepared for presentations in the coming week.
+
