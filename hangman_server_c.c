@@ -74,51 +74,52 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 	
-	//variables to load word file
-	FILE *fp;
-	int numOfWords = 213;
-	int maxWordLength = 30;
-    char words[numOfWords][maxWordLength];
-    char *fileName = "words.txt";
-	int i = 0;
-
-	//open word file and save to an array
-	fp = fopen(fileName, "r");
-    if (fp == NULL)
-    {
-        perror ("Error loading file");
-        exit (EXIT_FAILURE);
-    }
-	while(fgets(words[i++], maxWordLength, fp));
-	fclose(fp);
-
-
-	//variables for game
-	char *word, *message;
-	char guess;
-	size_t wordLength;
-	bool correct, win;
-	int wrongGuesses = 0;
-
-	//pick random word from words array
-	srand(time(NULL));
-	int index = rand() % numOfWords;
-	word = words[index];
-	wordLength = strlen(word) - 2; //strlen was reading the length to be 2 more than the actual length of the word
-		//possibly due to formatting in the text document
-
-	//display word in server
-	printf("Word length: %ld\n", wordLength);
-	printf("Word: %s\n", word);
-	//prepare initial message
-	char underscores[wordLength * 2];
-	for (i = 0; i < wordLength; i++)
-	{
-		underscores[2 * i] = '_'; //every even character of the message is an underscore
-		underscores[2 * i + 1] = ' '; //every odd character of the message is a space
-	}
 	//opening infinite while-loop in order to sequentially accept and read client connections
 	while(1){
+		//variables to load word file
+		FILE *fp;
+		int numOfWords = 213;
+		int maxWordLength = 30;
+		char words[numOfWords][maxWordLength];
+		char *fileName = "words.txt";
+		int i = 0;
+
+		//open word file and save to an array
+		fp = fopen(fileName, "r");
+		if (fp == NULL)
+		{
+			perror ("Error loading file");
+			exit (EXIT_FAILURE);
+		}
+		while(fgets(words[i++], maxWordLength, fp));
+		fclose(fp);
+
+
+		//variables for game
+		char *word, *message;
+		char guess, p;
+		size_t wordLength;
+		bool correct, win;
+		int flag, wrongGuesses;
+		wrongGuesses = 0;
+
+		//pick random word from words array
+		srand(time(NULL));
+		int index = rand() % numOfWords;
+		word = words[index];
+		wordLength = strlen(word) - 2; //strlen was reading the length to be 2 more than the actual length of the word
+			//possibly due to formatting in the text document
+
+		//display word in server
+		printf("Word length: %ld\n", wordLength);
+		printf("Word: %s\n", word);
+		//prepare initial message
+		char underscores[wordLength * 2];
+		for (i = 0; i < wordLength; i++)
+		{
+			underscores[2 * i] = '_'; //every even character of the message is an underscore
+			underscores[2 * i + 1] = ' '; //every odd character of the message is a space
+		}
 
 		//variables
 		sin_size = sizeof(struct sockaddr_in);
@@ -143,46 +144,52 @@ int main(int argc, char **argv) {
 		while (1)
 		{
 			//receive guess
-			read(client_socket, &guess, sizeof(int));
+			read(client_socket, &guess, sizeof(char));
 			//find out if guess is correct
 			correct = false;
 			win = true;
+			flag = 0;
 			//compare guess to every item of array
 			for (i = 0; i < wordLength; i++){
 				if (word[i] == guess){
 					correct = true;
 					underscores[2 * i] = guess;
+					flag = 1;
 				}
 				if (underscores[i] == '_'){
 					win = false;
 				}
 			}
-			//if the guess didn't match any items from the word, add 1 to wrongGuesses
-			if (!correct){
+			if (flag == 0){
 				wrongGuesses++;
 			}
 			//send word again
 			write(client_socket, underscores, sizeof(underscores));
 			//send number of wrong guesses
-			write(client_socket, &wrongGuesses, 20);
+			write(client_socket, &flag, sizeof(int));
 
 			if(wrongGuesses >= MAX_TRIES){
-				message = "lose";
+				message = "lost the game";
 				write(client_socket, message, sizeof(message));
                 break;
             }
 			if (win){
-				message = "win";
+				message = "won the game";
 				write(client_socket, message, sizeof(message));
                 break;
 			}
 		}
-
+		write(client_socket, message, sizeof(message));
 		//send what the word was
 		write(client_socket, word, sizeof(word));
-		//closing socket
-		close(client_socket);
+		printf("player %s",message);
+    	printf("\n");
+    	read(client_socket,&p,sizeof(char));
+    	if(p!='y')
+        break;
     }
 	
+	//closing socket
+	close(client_socket);
 	return 0;
 }
