@@ -19,6 +19,7 @@
 
 #define QUEUE_LENGTH 10
 #define BUFFER_SIZE 2048
+#define MAX_TRIES 5
 
 int main(int argc, char **argv) {
 
@@ -93,22 +94,34 @@ int main(int argc, char **argv) {
 
 
 	//variables for game
-	char * word;
-	int wordLength;
-	bool lettersGuessed[26];
+	char *word, *message;
+	char guess;
+	size_t wordLength;
+	bool correct, win;
 	int wrongGuesses = 0;
 
-	//pick random word
+	//pick random word from words array
 	srand(time(NULL));
 	int index = rand() % numOfWords;
 	word = words[index];
-	wordLength = strlen(word);
+	wordLength = strlen(word) - 2; //strlen was reading the length to be 2 more than the actual length of the word
+		//possibly due to formatting in the text document
 
+	//display word in server
+	printf("Word length: %ld\n", wordLength);
+	printf("Word: %s\n", word);
+	//prepare initial message
+	char underscores[wordLength * 2];
+	for (i = 0; i < wordLength; i++)
+	{
+		underscores[2 * i] = '_'; //every even character of the message is an underscore
+		underscores[2 * i + 1] = ' '; //every odd character of the message is a space
+	}
 	//opening infinite while-loop in order to sequentially accept and read client connections
 	while(1){
+
 		//variables
 		sin_size = sizeof(struct sockaddr_in);
-		char *message;
 		
 		//creating another socket to accept connections while old socket continues listening
 		client_socket = accept(server_socket, (struct sockaddr*) &serverAddr, &sin_size);
@@ -118,19 +131,55 @@ int main(int argc, char **argv) {
 			exit(1);
 		}
 
-		//*****************ADD HANGMAN CODE FROM TEAMMATES*****************
-		//this is the initial server blueprint that will be in place until changes are necessary
-
-
 		//send initial hangman word + structure
-		int send_status;
-		send_status = recv(client_socket, message, BUFFER_SIZE - 1, 0);
-		//error testing for receiving connections
-		if (send_status == -1) {
-			perror("recv");
+		int msg_status;
+		msg_status = send(client_socket, underscores, sizeof(underscores), 0);
+		//error testing for sending data
+		if (msg_status == -1) {
+			perror("send");
 			exit(1);
 		}
+		//infinite receive guess and send feedback
+		while (1)
+		{
+			//receive guess
+			read(client_socket, &guess, sizeof(int));
+			//find out if guess is correct
+			correct = false;
+			win = true;
+			//compare guess to every item of array
+			for (i = 0; i < wordLength; i++){
+				if (word[i] == guess){
+					correct = true;
+					underscores[2 * i] = guess;
+				}
+				if (underscores[i] == '_'){
+					win = false;
+				}
+			}
+			//if the guess didn't match any items from the word, add 1 to wrongGuesses
+			if (!correct){
+				wrongGuesses++;
+			}
+			//send word again
+			write(client_socket, underscores, sizeof(underscores));
+			//send number of wrong guesses
+			write(client_socket, &wrongGuesses, 20);
 
+			if(wrongGuesses >= MAX_TRIES){
+				message = "lose";
+				write(client_socket, message, sizeof(message));
+                break;
+            }
+			if (win){
+				message = "win";
+				write(client_socket, message, sizeof(message));
+                break;
+			}
+		}
+
+		//send what the word was
+		write(client_socket, word, sizeof(word));
 		//closing socket
 		close(client_socket);
     }

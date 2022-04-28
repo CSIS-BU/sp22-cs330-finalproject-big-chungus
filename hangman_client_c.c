@@ -19,17 +19,18 @@
 int main(int argc, char **argv) {
     char *server_port;
 	char *server_ip;
-// check to see if server has correct amount of input arguments and error message if not 2
+	// check to see if server has correct amount of input arguments and error message if not 2
 	if (argc != 3) {
 		fprintf(stderr, "Usage: ./client-c [server IP] [server port]");
 		exit(EXIT_FAILURE);
 	}
-// assigning server ip as argument 1 and server port as argument 2
+	// assigning server ip as argument 1 and server port as argument 2
 		server_ip = argv[1];
 		server_port = argv[2];
 
-	char ch,guessWord[20],message[100],check;
-	int client, num_wrong_guesses;
+	char ch,guessWord[100],message[100],check;
+	int client;
+	int num_wrong_guesses = 0;
 
     //creating the socket
     client = socket(AF_INET, SOCK_STREAM, 0);
@@ -56,42 +57,44 @@ int main(int argc, char **argv) {
     printf("\n\nYou have %d tries to try and guess the word or else :( !", MAX_TRIES);
     printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 	while(1){
-		printf("wait until server give you the word.\n");
-		read(client, guessWord, 20);
+		printf("wait until server gives you the word.\n");
+		read(client, guessWord, 60);
 		printf("start guessing the word:%s\n",guessWord);
 
+		//infinite guess letter and receive feedback
 		while(1){
 
 			printf("guess a letter:");
             scanf("%c",&ch);
     	    getchar();
-			write(client,&ch,1);
-			read(client,guessWord,20);
+			//send guess to server
+			write(client,&ch,sizeof(char));
+
+			//get word from server
+			read(client,guessWord,60);
 			printf("%s\n",guessWord);
 
-            read(client, &num_wrong_guesses, sizeof(num_wrong_guesses));
+			//get number of wrong guesses from server
+            read(client, &num_wrong_guesses, sizeof(int));
 			/* Tell user how many guesses has left. */
             printf("You have %d", MAX_TRIES - num_wrong_guesses);
-            printf(" guesses left.\n");
-            if(num_wrong_guesses == 5)
+            printf(" wrong guesses left.\n");
+            if(num_wrong_guesses >= MAX_TRIES)
             {
                 break;
             }
-
-
-
-	read(client,message,100);
-	printf("You %s\n",message);
-	read(client,message,100);
-	printf("Actual word:%s",message);
-	printf("\nPlay again(r):");
-	scanf("%c",&check);
-	write(client,&check,1);
-	if(check!='r'){
-		break;
-	}
+		}
+		read(client,message,100);
+		printf("You %s\n",message);
+		read(client,message,100);
+		printf("Actual word:%s",message);
+		printf("\nPlay again(r):");
+		scanf("%c",&check);
+		write(client,&check,sizeof(char));
+		if(check!='r'){
+			break;
+		}
 	}
 	close(client);
 	return 0;
-}
 }
