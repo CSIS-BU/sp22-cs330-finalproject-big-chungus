@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
     char *server_port;
 	char *server_ip;
 // check to see if server has correct amount of input arguments and error message if not 2
-	if (argc != 2) {
+	if (argc != 3) {
 		fprintf(stderr, "Usage: ./client-c [server IP] [server port]");
 		exit(EXIT_FAILURE);
 	}

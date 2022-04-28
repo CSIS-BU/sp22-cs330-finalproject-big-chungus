@@ -14,6 +14,8 @@
 #include <netinet/in.h>
 #include <errno.h>
 #include <arpa/inet.h>
+#include <stdbool.h>
+#include <time.h>
 
 #define QUEUE_LENGTH 10
 #define BUFFER_SIZE 2048
@@ -75,7 +77,7 @@ int main(int argc, char **argv) {
 	FILE *fp;
 	int numOfWords = 213;
 	int maxWordLength = 30;
-    char words [numOfWords][maxWordLength];
+    char words[numOfWords][maxWordLength];
     char *fileName = "words.txt";
 	int i = 0;
 
@@ -89,10 +91,18 @@ int main(int argc, char **argv) {
 	while(fgets(words[i++], maxWordLength, fp));
 	fclose(fp);
 
-	//i = 0; //prints out all the words
-    //while(printf ("%s", words[i++]));
 
+	//variables for game
+	char * word;
+	int wordLength;
+	bool lettersGuessed[26];
+	int wrongGuesses = 0;
 
+	//pick random word
+	srand(time(NULL));
+	int index = rand() % numOfWords;
+	word = words[index];
+	wordLength = strlen(word);
 
 	//opening infinite while-loop in order to sequentially accept and read client connections
 	while(1){
@@ -123,7 +133,7 @@ int main(int argc, char **argv) {
 
 		//closing socket
 		close(client_socket);
-        }
+    }
 	
 	return 0;
 }
