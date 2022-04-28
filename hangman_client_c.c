@@ -55,8 +55,8 @@ int main(int argc, char **argv) {
 	while(1){
 		printf("\n\nWelcome to hangman.");
 		printf("\n\nEach letter is represented by an underscore.");
-		printf("\n\nYou have to type only one letter in one try");
-		printf("\n\nYou have %d tries to try and guess the word or else :( !", MAX_TRIES);
+		printf("\n\nYou have to type one letter for each guess.");
+		printf("\n\nYou can only make %d wrong guesses when trying to guess the word or else :( !", MAX_TRIES);
 		printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 		printf("wait until server gives you the word.\n");
 		read(client, guessWord, 60);
