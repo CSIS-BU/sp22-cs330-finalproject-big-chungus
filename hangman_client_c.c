@@ -98,12 +98,13 @@ int main(int argc, char **argv) {
 		write(client,"w",sizeof(char));
 		read(client,word,sizeof(word));
 		printf("The word was %s\n", word);
-		printf("\nPlay again(y/n):");
-		scanf("%c",&check);
-		if (check != 'y'){
-			break;
-		}
-		write(client,&check,sizeof(char));
+		break;
+		// printf("\nPlay again(y/n):");
+		// scanf("%c",&check);
+		// if (check != 'y'){
+		// 	break;
+		// }
+		// write(client,&check,sizeof(char));
 	}
 	close(client);
 	return 0;

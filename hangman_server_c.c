@@ -189,13 +189,15 @@ int main(int argc, char **argv) {
 		//send what the word was
 		
 		printf("player %s\n",message);
-		//wait for server to send w so message and word don't get combined
-		read(client_socket, message, BUFFER_SIZE);
+		//wait for server to send something so message and word don't get combined
+		read(client_socket, message, sizeof(char));
 		write(client_socket, word, strlen(word));
-    	read(client_socket,&p,sizeof(char));
-    	if(p!='y'){
-			break;
-		}
+		break;
+    	//read(client_socket,&p,sizeof(char));
+		// printf("player is replaying?: %c\n",p);
+    	// if(p!='y'){
+		// 	break;
+		// }
     }
 	
 	//closing socket
