@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
   	server_port = argv[1];
 
 	//creating the socket
-	int server_socket, client_socket;
+	int server_socket, client_socket, number_of_blanks, blanks_filled_in, hold = 0, winner = 1;
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
 	//error testing for socket creation
 	if(server_socket == -1){
@@ -114,11 +114,11 @@ int main(int argc, char **argv) {
 		printf("Word length: %ld\n", wordLength);
 		printf("Word: %s\n", word);
 		//prepare initial message
-		char underscores[wordLength * 2];
+		char underscores[wordLength];
 		for (i = 0; i < wordLength; i++)
 		{
-			underscores[2 * i] = '_'; //every even character of the message is an underscore
-			underscores[2 * i + 1] = ' '; //every odd character of the message is a space
+			underscores[i] = '_'; //every even character of the message is an underscore
+			//underscores[2 * i + 1] = ' '; //every odd character of the message is a space
 		}
 
 		//variables
@@ -147,46 +147,56 @@ int main(int argc, char **argv) {
 			read(client_socket, &guess, sizeof(char));
 			//find out if guess is correct
 			correct = false;
-			win = true;
+			win = false;
 			flag = 0;
 			//compare guess to every item of array
 			for (i = 0; i < wordLength; i++){
+				number_of_blanks = wordLength;
 				if (word[i] == guess){
 					correct = true;
-					underscores[2 * i] = guess;
+					underscores[i] = guess;
+					blanks_filled_in++;
 					flag = 1;
 				}
-				if (underscores[i] == '_'){
-					win = false;
-				}
+				
 			}
+			printf("number_of_blanks: %d\n", number_of_blanks);
+			printf("blanks_filled_in: %d\n", blanks_filled_in);
+			if(number_of_blanks <= blanks_filled_in){
+				write(client_socket, &winner, sizeof(int));
+				win = true;
+				break;
+			}
+			
+			write(client_socket, &hold, sizeof(int));
+			
 			if (flag == 0){
 				wrongGuesses++;
 			}
+			
 			//send word again
 			write(client_socket, underscores, sizeof(underscores));
 			//send number of wrong guesses
-			write(client_socket, &flag, sizeof(int));
-
+			write(client_socket, &wrongGuesses, sizeof(int));
+			
 			if(wrongGuesses >= MAX_TRIES){
-				message = "lost the game";
-				write(client_socket, message, sizeof(message));
+				message = "lost the game :(";
+				write(client_socket, message, strlen(message));
                 break;
             }
-			if (win){
-				message = "won the game";
-				write(client_socket, message, sizeof(message));
-                break;
-			}
 		}
-		write(client_socket, message, sizeof(message));
+		if (win){
+			message = "WON the game";
+			write(client_socket, message, strlen(message));
+		}
 		//send what the word was
-		write(client_socket, word, sizeof(word));
+		
 		printf("player %s",message);
     	printf("\n");
+		write(client_socket, word, strlen(word));
     	read(client_socket,&p,sizeof(char));
-    	if(p!='y')
-        break;
+    	if(p!='r')
+			break;
     }
 	
 	//closing socket

@@ -28,8 +28,9 @@ int main(int argc, char **argv) {
 		server_ip = argv[1];
 		server_port = argv[2];
 
-	char ch,guessWord[100],message[100],check, p;
-	int client, num_wrong_guesses, flag;
+	char ch,guessWord[100],message[100],check, word[100];
+	int client,winner_check = 0;
+	int num_wrong_guesses = 0;
 
     //creating the socket
     client = socket(AF_INET, SOCK_STREAM, 0);
@@ -50,46 +51,57 @@ int main(int argc, char **argv) {
 		perror("connect");
 	}
 
-	num_wrong_guesses = 0;
-    printf("\nWELCOME TO HANGMAN GAME\n");
+    
 	while(1){
-		printf("wait until server gives you the word.....\n");
+		printf("\n\nWelcome to hangman.");
+		printf("\n\nEach letter is represented by an underscore.");
+		printf("\n\nYou have to type only one letter in one try");
+		printf("\n\nYou have %d tries to try and guess the word or else :( !", MAX_TRIES);
+		printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		printf("wait until server gives you the word.\n");
 		read(client, guessWord, 60);
 		printf("start guessing the word:%s\n",guessWord);
 
 		//infinite guess letter and receive feedback
 		while(1){
 
-			printf("put a letter:");
+			printf("guess a letter:");
             scanf("%c",&ch);
     	    getchar();
 			//send guess to server
-			write(client,&ch,1);
-			//get word from server
-			read(client,guessWord,60);
-			printf("%s\n",guessWord);
-			//get number of wrong guesses from server
-            read(client, &flag, sizeof(int));
+			write(client,&ch,sizeof(char));
 
-			if (&flag == 0){
-				num_wrong_guesses++;
-			}
-			if (num_wrong_guesses >= MAX_TRIES){
+			read(client,&winner_check,sizeof(int));
+			if(winner_check != 0){
 				break;
 			}
+
+			//get word from server
+			read(client, guessWord, strlen(guessWord));
+			printf("%s\n",guessWord);
+			
+			//get number of wrong guesses from server
+			read(client,&num_wrong_guesses,sizeof(int));
+
 			/* Tell user how many guesses has left. */
             printf("You have %d", MAX_TRIES - num_wrong_guesses);
             printf(" wrong guesses left.\n");
+            if(num_wrong_guesses >= MAX_TRIES)
+            {
+                break;
+            }
+			
 		}
-		read(client,message,100);
-		printf("You %s\n",message);
-		read(client,message,100);
-		printf("actual word:%s",message);
-		printf("\nPlay again(y/n):");
-		scanf("%c",&p);
-    	write(client,&p,1);
-    	if(p!='y')
-        	break;
+		read(client,message,sizeof(message));
+		printf("You have %s\n",message);
+		read(client,word,sizeof(word));
+		printf("Actual word: %s\n", word);
+		printf("\nPlay again(r):");
+		scanf("%c",&check);
+		write(client,&check,sizeof(char));
+		if(check!='r'){
+			break;
+		}
 	}
 	close(client);
 	return 0;
