@@ -1,6 +1,6 @@
 /*****************************************************************************
  * hangman_client_c.c FOR Final Group Project
- * Name: Gavin Worley
+ * Name: Gavin Worley, Ian Connors
  *****************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -94,14 +94,16 @@ int main(int argc, char **argv) {
 		}
 		read(client,message,sizeof(message));
 		printf("You have %s\n",message);
+		//send random message just so server doesn't combine two sends
+		write(client,"w",sizeof(char));
 		read(client,word,sizeof(word));
-		printf("Actual word: %s\n", word);
-		printf("\nPlay again(r):");
+		printf("The word was %s\n", word);
+		printf("\nPlay again(y/n):");
 		scanf("%c",&check);
-		write(client,&check,sizeof(char));
-		if(check!='r'){
+		if (check != 'y'){
 			break;
 		}
+		write(client,&check,sizeof(char));
 	}
 	close(client);
 	return 0;
