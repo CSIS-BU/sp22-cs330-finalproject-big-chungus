@@ -1,6 +1,6 @@
 /*****************************************************************************
  * hangman_server_c.c     for Final Project                                                            
- * Name: Zach Thrall
+ * Name: Zach Thrall, Ian Connors, Gavin Worley
  *****************************************************************************/
 
 #include <stdio.h>
@@ -73,28 +73,36 @@ int main(int argc, char **argv) {
 		perror("listen");
 		exit(1);
 	}
+	//variables to load word file
+	FILE *fp;
+	int numOfWords = 213;
+	int maxWordLength = 30;
+	char words[numOfWords][maxWordLength];
+	char *fileName = "words.txt";
+	int i = 0;
+
+	//open word file and save to an array
+	fp = fopen(fileName, "r");
+	if (fp == NULL)
+	{
+		perror ("Error loading file");
+		exit (EXIT_FAILURE);
+	}
+	while(fgets(words[i++], maxWordLength, fp));
+	fclose(fp);
 	
+	//variables
+	sin_size = sizeof(struct sockaddr_in);
+	
+	//creating another socket to accept connections while old socket continues listening
+	client_socket = accept(server_socket, (struct sockaddr*) &serverAddr, &sin_size);
+	//error testing for accepting connections
+	if(client_socket == -1){
+		perror("accept");
+		exit(1);
+	}
 	//opening infinite while-loop in order to sequentially accept and read client connections
 	while(1){
-		//variables to load word file
-		FILE *fp;
-		int numOfWords = 213;
-		int maxWordLength = 30;
-		char words[numOfWords][maxWordLength];
-		char *fileName = "words.txt";
-		int i = 0;
-
-		//open word file and save to an array
-		fp = fopen(fileName, "r");
-		if (fp == NULL)
-		{
-			perror ("Error loading file");
-			exit (EXIT_FAILURE);
-		}
-		while(fgets(words[i++], maxWordLength, fp));
-		fclose(fp);
-
-
 		//variables for game
 		char *word, *message;
 		char guess, p;
@@ -119,17 +127,6 @@ int main(int argc, char **argv) {
 		{
 			underscores[i] = '_'; //every even character of the message is an underscore
 			//underscores[2 * i + 1] = ' '; //every odd character of the message is a space
-		}
-
-		//variables
-		sin_size = sizeof(struct sockaddr_in);
-		
-		//creating another socket to accept connections while old socket continues listening
-		client_socket = accept(server_socket, (struct sockaddr*) &serverAddr, &sin_size);
-		//error testing for accepting connections
-		if(client_socket == -1){
-			perror("accept");
-			exit(1);
 		}
 
 		//send initial hangman word + structure
@@ -191,12 +188,16 @@ int main(int argc, char **argv) {
 		}
 		//send what the word was
 		
-		printf("player %s",message);
-    	printf("\n");
+		printf("player %s\n",message);
+		//wait for server to send something so message and word don't get combined
+		read(client_socket, message, sizeof(char));
 		write(client_socket, word, strlen(word));
-    	read(client_socket,&p,sizeof(char));
-    	if(p!='r')
-			break;
+		break;
+    	//read(client_socket,&p,sizeof(char));
+		// printf("player is replaying?: %c\n",p);
+    	// if(p!='y'){
+		// 	break;
+		// }
     }
 	
 	//closing socket

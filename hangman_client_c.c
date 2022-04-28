@@ -1,6 +1,6 @@
 /*****************************************************************************
  * hangman_client_c.c FOR Final Group Project
- * Name: Gavin Worley
+ * Name: Gavin Worley, Ian Connors
  *****************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,8 +55,8 @@ int main(int argc, char **argv) {
 	while(1){
 		printf("\n\nWelcome to hangman.");
 		printf("\n\nEach letter is represented by an underscore.");
-		printf("\n\nYou have to type only one letter in one try");
-		printf("\n\nYou have %d tries to try and guess the word or else :( !", MAX_TRIES);
+		printf("\n\nYou have to type one letter for each guess.");
+		printf("\n\nYou can only make %d wrong guesses when trying to guess the word or else :( !", MAX_TRIES);
 		printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 		printf("wait until server gives you the word.\n");
 		read(client, guessWord, 60);
@@ -94,14 +94,17 @@ int main(int argc, char **argv) {
 		}
 		read(client,message,sizeof(message));
 		printf("You have %s\n",message);
+		//send random message just so server doesn't combine two sends
+		write(client,"w",sizeof(char));
 		read(client,word,sizeof(word));
-		printf("Actual word: %s\n", word);
-		printf("\nPlay again(r):");
-		scanf("%c",&check);
-		write(client,&check,sizeof(char));
-		if(check!='r'){
-			break;
-		}
+		printf("The word was %s\n", word);
+		break;
+		// printf("\nPlay again(y/n):");
+		// scanf("%c",&check);
+		// if (check != 'y'){
+		// 	break;
+		// }
+		// write(client,&check,sizeof(char));
 	}
 	close(client);
 	return 0;
